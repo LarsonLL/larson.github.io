@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Spark SQL读取hive数据时报找不到mysql驱动 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Exception :1234scala&amp;gt; import spark.sqlimport spark.sqlscala&amp;gt; val df = sql(&quot;select * from default.orders&quot;)Caused by: org.datanucleus.exceptions.NucleusException: Attempt to invoke the &quot;BONECP&quot; pl">
+<meta name="keywords" content="spark,hive,mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark SQL读取hive数据时报找不到mysql驱动">
+<meta property="og:url" content="http://yoursite.com/2018/06/21/filename/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Exception :1234scala&amp;gt; import spark.sqlimport spark.sqlscala&amp;gt; val df = sql(&quot;select * from default.orders&quot;)Caused by: org.datanucleus.exceptions.NucleusException: Attempt to invoke the &quot;BONECP&quot; pl">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-06-21T07:24:22.199Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark SQL读取hive数据时报找不到mysql驱动">
+<meta name="twitter:description" content="Exception :1234scala&amp;gt; import spark.sqlimport spark.sqlscala&amp;gt; val df = sql(&quot;select * from default.orders&quot;)Caused by: org.datanucleus.exceptions.NucleusException: Attempt to invoke the &quot;BONECP&quot; pl">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-filename" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/21/filename/" class="article-date">
+  <time datetime="2018-06-21T07:24:21.872Z" itemprop="datePublished">2018-06-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark SQL读取hive数据时报找不到mysql驱动
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Exception"><a href="#Exception" class="headerlink" title="Exception :"></a>Exception :</h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">scala&gt; <span class="keyword">import</span> spark.sql</span><br><span class="line"><span class="keyword">import</span> spark.sql</span><br><span class="line">scala&gt; <span class="keyword">val</span> df = sql(<span class="string">"select * from default.orders"</span>)</span><br><span class="line"><span class="type">Caused</span> by: org.datanucleus.exceptions.<span class="type">NucleusException</span>: <span class="type">Attempt</span> to invoke the <span class="string">"BONECP"</span> plugin to create a <span class="type">ConnectionPool</span> gave an error : <span class="type">The</span> specified datastore driver (<span class="string">"com.mysql.jdbc.Driver"</span>) was not found in the <span class="type">CLASSPATH</span>. <span class="type">Please</span> check your <span class="type">CLASSPATH</span> specification, and the name of the driver.</span><br></pre></td></tr></table></figure>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution :"></a>Solution :</h4><p>1、需要将hive-site.xml 拷贝到spark 的conf 目录下。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/<span class="built_in">local</span>/src/apache-hive-1.2.2-bin/conf/hive-site.xml /usr/<span class="built_in">local</span>/src/spark-2.0.2-bin-hadoop2.6/conf/</span><br></pre></td></tr></table></figure></p>
+<p>2、将对应的mysql-connector-java-5.1.44-bin.jar 放到$SPARK_HOME/jars/目录下。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/<span class="built_in">local</span>/src/mysql-connector-java-5.1.44/mysql-connector-java-5.1.44-bin.jar /usr/<span class="built_in">local</span>/src/spark-2.0.2-bin-hadoop2.6/jars/</span><br></pre></td></tr></table></figure></p>
+<h4 id="Verification-："><a href="#Verification-：" class="headerlink" title="Verification ："></a>Verification ：</h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">scala&gt; <span class="keyword">import</span> spark.sql</span><br><span class="line"><span class="keyword">import</span> spark.sql</span><br><span class="line">scala&gt; <span class="keyword">val</span> orders = sql(<span class="string">"select * from orders"</span>)</span><br><span class="line">orders: org.apache.spark.sql.<span class="type">DataFrame</span> = [order_id: string, user_id: string ... <span class="number">5</span> more fields]</span><br><span class="line"></span><br><span class="line">scala&gt; orders.show(<span class="number">10</span>)</span><br><span class="line">+--------+-------+--------+------------+---------+-----------------+----------------------+</span><br><span class="line">|order_id|user_id|eval_set|order_number|order_dow|order_hour_of_day|days_since_prior_order|</span><br><span class="line">+--------+-------+--------+------------+---------+-----------------+----------------------+</span><br><span class="line">|order_id|user_id|eval_set|order_number|order_dow|order_hour_of_day| days_since_prior_...|</span><br><span class="line">| <span class="number">2539329</span>| <span class="number">1</span>| prior| <span class="number">1</span>| <span class="number">2</span>| <span class="number">08</span>| |</span><br><span class="line">| <span class="number">2398795</span>| <span class="number">1</span>| prior| <span class="number">2</span>| <span class="number">3</span>| <span class="number">07</span>| <span class="number">15.0</span>|</span><br><span class="line">| <span class="number">473747</span>| <span class="number">1</span>| prior| <span class="number">3</span>| <span class="number">3</span>| <span class="number">12</span>| <span class="number">21.0</span>|</span><br><span class="line">| <span class="number">2254736</span>| <span class="number">1</span>| prior| <span class="number">4</span>| <span class="number">4</span>| <span class="number">07</span>| <span class="number">29.0</span>|</span><br><span class="line">| <span class="number">431534</span>| <span class="number">1</span>| prior| <span class="number">5</span>| <span class="number">4</span>| <span class="number">15</span>| <span class="number">28.0</span>|</span><br><span class="line">| <span class="number">3367565</span>| <span class="number">1</span>| prior| <span class="number">6</span>| <span class="number">2</span>| <span class="number">07</span>| <span class="number">19.0</span>|</span><br><span class="line">| <span class="number">550135</span>| <span class="number">1</span>| prior| <span class="number">7</span>| <span class="number">1</span>| <span class="number">09</span>| <span class="number">20.0</span>|</span><br><span class="line">| <span class="number">3108588</span>| <span class="number">1</span>| prior| <span class="number">8</span>| <span class="number">1</span>| <span class="number">14</span>| <span class="number">14.0</span>|</span><br><span class="line">| <span class="number">2295261</span>| <span class="number">1</span>| prior| <span class="number">9</span>| <span class="number">1</span>| <span class="number">16</span>| <span class="number">0.0</span>|</span><br><span class="line">+--------+-------+--------+------------+---------+-----------------+----------------------+</span><br><span class="line">only showing top <span class="number">10</span> rows</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/06/21/filename/" data-id="cjio80soy0003v4qf58nny5gn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spark-hive-mysql/">spark,hive,mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/21/GithubPages-Hexo/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GithubPages-Hexo</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/spark-hive-mysql/">spark,hive,mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/spark-hive-mysql/" style="font-size: 10px;">spark,hive,mysql</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/06/21/filename/">Spark SQL读取hive数据时报找不到mysql驱动</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/GithubPages-Hexo/">GithubPages-Hexo</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/My-New-Post/">My New Post</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
