@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Refreshing Materialized View | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="# refer toOracle 官方文档 Url : https://docs.oracle.com/cd/E11882_01/server.112/e25554/refresh.htm#DWHSG03003# 概述在创建 materialized view 的时候可以指定两种刷新方式 - ON COMMIT   在这种机制下，Materialized view 在每次commit 的时候都会自">
+<meta name="keywords" content="Oracle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Refreshing Materialized View">
+<meta property="og:url" content="http://yoursite.com/2018/06/22/Refreshing Materialized View/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="# refer toOracle 官方文档 Url : https://docs.oracle.com/cd/E11882_01/server.112/e25554/refresh.htm#DWHSG03003# 概述在创建 materialized view 的时候可以指定两种刷新方式 - ON COMMIT   在这种机制下，Materialized view 在每次commit 的时候都会自">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2018/06/22/Refreshing%20Materialized%20View/images/1529663932063.png">
+<meta property="og:updated_time" content="2018-06-22T02:55:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Refreshing Materialized View">
+<meta name="twitter:description" content="# refer toOracle 官方文档 Url : https://docs.oracle.com/cd/E11882_01/server.112/e25554/refresh.htm#DWHSG03003# 概述在创建 materialized view 的时候可以指定两种刷新方式 - ON COMMIT   在这种机制下，Materialized view 在每次commit 的时候都会自">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/22/Refreshing%20Materialized%20View/images/1529663932063.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Refreshing Materialized View" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/22/Refreshing Materialized View/" class="article-date">
+  <time datetime="2018-06-22T10:56:15.320Z" itemprop="datePublished">2018-06-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Refreshing Materialized View
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <font face="黑体"><br><br># refer to<br>Oracle 官方文档 Url : <a href="https://docs.oracle.com/cd/E11882_01/server.112/e25554/refresh.htm#DWHSG03003" target="_blank" rel="noopener">https://docs.oracle.com/cd/E11882_01/server.112/e25554/refresh.htm#DWHSG03003</a><br># 概述<br>在创建 materialized view 的时候可以指定两种刷新方式<br><br> - ON COMMIT<br>   在这种机制下，Materialized view 在每次commit 的时候都会自动 refresh。<br> - ON DEMAND<br>   在这中case下，Materialized view 只能通过call DBMS_MVIEW 这个package中的procedure才能进行refresh<br><br>DBMS_MVIEW 提供3种刷新方式<br> - DBMS_MVIEW.REFRESH  # 刷新一个或者多个物化视图<br> - DBMS_MVIEW.REFRESH_ALL_MVIEWS  # 刷新所有的物化视图<br> - DBMS_MVIEW.REFRESH_DEPENDENT  # 刷新所有依赖于指定的主表、物化视图（可以是多个）的物化视图<br><br>#### <font color="red" size="6"> Note: </font><br> - 由于刷新物化视图操作需要临时空间来重建索引，并且可能需要额外的空间来执行刷新操作本身，所以不需要频繁的进行刷新操作。因此如果没有及时刷新物化视图的话，需要考虑查询重写的问题。<br> - 可以通过 <code>ALTER SYSTEM SET QUERY_REWRITE_ENABLED = FALSE or TRUE</code> 来禁用或者启用查询重写操作。<br> - Oracle 版本 10 以下 默认为fales ， 10 以上 为TRUE<br> - If you anticipate performing insert, update or delete operations on tables referenced by a materialized view concurrently with the refresh of that materialized view, and that materialized view includes joins and aggregation, Oracle recommends you use ON COMMIT fast refresh rather than ON DEMAND fast refresh.(如果预计在物化视图刷新的同时对物化视图引用的表执行插入，更新或删除操作，并且该物化视图包含连接和聚合，Oracle建议您使用ON COMMIT快速刷新而不是ON DEMAND快速刷新。)<br><br># Refresh method (4种)<br>## Complete Refresh<br>  - build immediate 在物化视图第一次创建的时候会发生完全刷新，除非创建的物化视图引用的表还没有被创建.<br>  - build deferred  创建的物化视图，第一时间是不会进行完全刷新，但必须在第一次使用之前进行一次完整的刷新.<br>  - 刷新过程需要读取细节表，计算物化视图结果，非常耗时，尤其是当需要读取大量数据时。<br><br>##  Fast Refresh<br>  - 对比上面的完整刷新，快速刷新物化视图不需要重新计算整个物化视图，而是将更改现有的数据，所以会比较快<br><br>## Partition Change Tracking (PCT) Refresh<br>  - 当物化视图引用的表有分区操作的时候，只能使用快速刷新(Fast Refresh) ,但是要满足PCT 的所有条件才允许基于PC的刷新。<br>  -对于没有分区的表，如果使用Fast Refresh (method =&gt; ‘F’),Oracle在执行之前会尝试基于log的快速刷新。<br>  - 类似的当使用Force方法刷新的时候，Oracle 会按如下顺序选择Refresh方式: log-based fast refresh , PCT refresh , complete<br>  - 当然你也可以指定PCT刷新方式（method =&gt; ‘P’）<br><br>## ON COMMIT Refresh<br>  - 使用这种方法自动刷新物化视图，当事物更新了一个物化视图引用的表时，这些changes会自动刷新到对应的物化视图上。<br>  - 好处是 不需要定时刷新物化视图<br>  - 缺点 commit 需要的时间比较长。不过如果再数据仓库中应该不是问题，因为不太可能并发进程，所以再OLTP中要避免这种MV。<br><br>## Manual Refresh Using The DBMS_MVIEW package<br>  - 刷新物化视图时，可以指定4中方法之一，入下图所示<br><br>| Refresh Option |   Parameter | Description    |<br>| ————– | ————–  |————–  |<br>| COMPLETE | C | 通过重新计算物化视图定义的查询来刷新|<br>| FAST | F | 通过增量地对物化视图应用更改来刷新，对于本地物化视图，它选择由优化器估计的最新方法。所考虑的刷新方法是基于日志的快速和FAST_PCT。 |<br>| FAST_PCT | P | 通过重新计算在引用的明细表中受到更改的分区影响的物化视图中的行来进行刷新。|<br>| FORCE | F&amp;？ | 先尝试快速刷新，如果不符合快速刷新条件，就会进行完全刷新。优化器选择的刷新基于日子的FAST ，FAST_PCT 和 COMPLETE |<br># Refresh procedure (常用的3种)<br>## 调用<code>DBMS_MVIEW.REFRESH</code>刷新Materialized View<br> - 如果多个物化视图一起刷新需要用逗号分割。(list&amp;tab)<br> - 刷新方法: F-Fast , P-Fast_PCT , ? - Force , C-Complete (Method)<br> - 使用回滚段 (rollback_seg) 默认为 NULL<br> - 在错误之后是否进行刷新(TRUE or FALSE)。True: 那么需要将 <code>number_of_failure</code> 设置一个失败以后刷新的次数，类似于重新请求。FALSE: 默认Refresh 在遇到第一个错误的时候就会停止，并且列表剩余的物化视图不会刷新。 （refresh_after_errors） 默认为FALSE<br> - 下面的4个参数，用来进行 replication 过程的时候，一般再数据仓库的刷新时候 依次设置为 <code>FALSE,0,0,0</code><br> -  Atomic refresh (TRUE or FALSE) atomic_refresh 默认为TRUE  TRUE: 所有的刷新操作在一个事物中完成. FALSE: 在单独的事务中刷新每个指定的物化视图。<br>#### For exampl<br> - fast refresh  MV : cal_month_sales_mv<br> <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DBMS_MVIEW.REFRESH('CAL_MONTH_SALES_MV', 'F', '', TRUE, FALSE, 0,0,0, FALSE);</span><br></pre></td></tr></table></figure><br><br> - 多个物化视图刷新:<code>CAL_MONTH_SALES_MV</code> 完全刷新 <code>FWEEK_PSCAT_SALES_MV</code> 快速刷新<br> <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DBMS_MVIEW.REFRESH('CAL_MONTH_SALES_MV, FWEEK_PSCAT_SALES_MV', 'CF', '', </span><br><span class="line"> TRUE, FALSE, 0,0,0, FALSE);</span><br></pre></td></tr></table></figure><br><br>#### <font color="red" size="6"> Note: </font><br> - 如果未指定refresh方法，则使用物化视图定义中指定的默认刷新方法。<br><br>## 调用<code>DMBS_MVIEW.REFRESH_ALL_MVIEWS</code>刷新所有的Materialized View<br>  - 这个Procedure 会刷新所有的物化视图，如果其中有未成功刷新的物化视图，会返回失败的次数。<br><br>#### Parameter<br>  - 失败数量，这是一个输出的变量OUT () number_of_failures<br>  - 刷新方法，F-Fast, P-Fast_PCT, ?-Force, C-Complete<br>  - 在错误之后是否进行刷新(TRUE or FALSE)。True: 那么需要将 <code>number_of_failure</code> 设置一个失败以后刷新的次数，类似于重新请求。FALSE: 默认Refresh 在遇到第一个错误的时候就会停止，并且列表剩余的物化视图不会刷新。 （refresh_after_errors） 默认为FALSE，<br>  -  Atomic refresh (TRUE or FALSE) atomic_refresh 默认为TRUE  TRUE: 所有的刷新操作在一个事物中完成. FALSE: 在单独的事务中刷新每个指定的物化视图。<br>#### For Example<br>  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DBMS_MVIEW.REFRESH_ALL_MVIEWS(failures,'C','', TRUE, FALSE);</span><br></pre></td></tr></table></figure><br><br>## 调用 <code>DMBS_MVIEW.REFRESH_DEPENDENT</code> 刷新那些依赖于特定表或者表列表的物化视图。<br>#### Parameter<br>  - 失败数量，这是一个输出的变量OUT (number_of_failures)<br>  - 相关的表 (list&amp;tab)<br>  - 刷新方法，F-Fast, P-Fast_PCT, ?-Force, C-Complete  (Method)<br>  - 使用回滚段 (rollback_seg) 默认为 NULL<br>  - 在错误之后是否进行刷新(TRUE or FALSE) 同上<br>  - Atomic refresh (TRUE or FALSE) atomic_refresh 默认为TRUE 同上<br>  -  是否嵌套 nested 默认为 FALSE 。 如果是TRUE 会根据依赖项顺序刷新指定表集的所有相关物化视图，以确保物化视图相对于底层基表而言是新鲜的。<br><br>#### For Example<br>    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">    DBMS_MVIEW.REFRESH_DEPENDENT(failures, 'CUSTOMERS', 'C', '', FALSE, FALSE );</span><br><span class="line">    ```  </span><br><span class="line"></span><br><span class="line"># 附录</span><br><span class="line">## 如何确定物化视图是否可以进行快速刷新</span><br><span class="line">  - `DBMS_ADVISOR.TUNE_MVIEW` </span><br><span class="line"></span><br><span class="line">## 监控执行的刷新</span><br><span class="line">  ```sql</span><br><span class="line">  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> V$SESSION_LONGOPS;</span><br><span class="line">  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> DBA_JOBS_RUNNING; <span class="comment">--查看那个作业在那个队列上的进度</span></span><br></pre></td></tr></table></figure><br><br>## 检查物化视图的状态<br>  oracle提供了3个视图用来检查物化视图的状态.<br>  - DBA_MVEIWS<br>  - ALL_MVIEWS<br>  - USER_MVIEWS<br><br>##### 检查物化视图是新的还是旧的<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> MVIEW_NAME, STALENESS, LAST_REFRESH_TYPE, COMPILE_STATE </span><br><span class="line"><span class="keyword">FROM</span> USER_MVIEWS <span class="keyword">ORDER</span> <span class="keyword">BY</span> MVIEW_NAME;</span><br><span class="line"></span><br><span class="line">MVIEW_NAME            STALENESS      LAST_REF       COMPILE_STATE</span><br><span class="line"><span class="comment">----------            ---------      --------       -------------</span></span><br><span class="line">CUST_MTH_SALES_MV     NEEDS_COMPILE  FAST           NEEDS_COMPILE</span><br><span class="line">PROD_YR_SALES_MV      FRESH          FAST           VALID</span><br></pre></td></tr></table></figure><br><br>如果 <code>COMPILE_STATE</code> 是 <code>NEEDS_COMPILE</code> ,那么这条信息的其他列都不准确。<br> - 要重新将物化视图编译，执行下面语句:<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">MATERIALIZED</span> <span class="keyword">VIEW</span> [materialized_view_name] COMPILE;</span><br></pre></td></tr></table></figure><br><br>##### 可以使用下面的几个视图来检查分区是否新鲜<br> - USER_MVIEWS 确定物化视图的分区更改跟踪PCT信息<br> - USER_MVIEW_DETAIL_RELATIONS 显示明细表的分区信息。<br> - USER_MVIEW_DETAIL_PARTITION 确定那些分区是新的。<br> - USER_MVIEW_DETAIL_SUBPARTITION 确定那些子分区是新的。<br><br>下图展示了一个范围列表分区表和一个基于它的物化视图。<br>  - 分区 P1，P2,P3,P4<br>  - 子分区 SP1，SP2，SP3<br><img src="./images/1529663932063.png" alt="enter description here"><br><br>下面是一些用上面的视图来确认MV的是否新鲜<br>##### 通过<code>USER_MVIEWS</code> 查询视图的PCT信息。<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> MVIEW_NAME, NUM_PCT_TABLES, NUM_FRESH_PCT_REGIONS,</span><br><span class="line">   NUM_STALE_PCT_REGIONS</span><br><span class="line"><span class="keyword">FROM</span> USER_MVIEWS</span><br><span class="line"><span class="keyword">WHERE</span> MVIEW_NAME = MV1;</span><br><span class="line"></span><br><span class="line">MVIEW_NAME NUM_PCT_TABLES NUM_FRESH_PCT_REGIONS NUM_STALE_PCT_REGIONS</span><br><span class="line"><span class="comment">---------- -------------- --------------------- ---------------------</span></span><br><span class="line">       MV1              1                     9                     3</span><br></pre></td></tr></table></figure><br><br>##### 通过 <code>USER_MVIEW_DETAIL_RELATIONS</code> 查询视图的PCT信息<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> MVIEW_NAME, DETAILOBJ_NAME, DETAILOBJ_PCT,</span><br><span class="line">   NUM_FRESH_PCT_PARTITIONS, NUM_STALE_PCT_PARTITIONS</span><br><span class="line"><span class="keyword">FROM</span> USER_MVIEW_DETAIL_RELATIONS</span><br><span class="line"><span class="keyword">WHERE</span> MVIEW_NAME = MV1;</span><br><span class="line"></span><br><span class="line">MVIEW_NAME  DETAILOBJ_NAME  DETAIL_OBJ_PCT  NUM_FRESH_PCT_PARTITIONS  NUM_STALE_PCT_PARTITIONS</span><br><span class="line"><span class="comment">----------  --------------  --------------  ------------------------  ------------------------</span></span><br><span class="line">        MV1             T1               Y                         3                         1</span><br></pre></td></tr></table></figure><br><br>##### 通过 <code>USER_MVIEW_DETAIL_PARTITION</code> 查询视图的PCT信息<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> MVIEW_NAME,DETAILOBJ_NAME,DETAIL_PARTITION_NAME,</span><br><span class="line">   DETAIL_PARTITION_POSITION,FRESHNESS</span><br><span class="line"><span class="keyword">FROM</span> USER_MVIEW_DETAIL_PARTITION</span><br><span class="line"><span class="keyword">WHERE</span> MVIEW_NAME = MV1;</span><br><span class="line"></span><br><span class="line">MVIEW_NAME  DETAILOBJ_NAME  DETAIL_PARTITION_NAME  DETAIL_PARTITION_POSITION  FRESHNESS</span><br><span class="line"><span class="comment">----------  --------------  ---------------------  -------------------------  ---------</span></span><br><span class="line">       MV1               T1                    P1                          1      FRESH</span><br><span class="line">       MV1               T1                    P2                          2      FRESH</span><br><span class="line">       MV1               T1                    P3                          3      STALE</span><br><span class="line">       MV1               T1                    P4                          4      FRESH</span><br></pre></td></tr></table></figure><br><br>##### 通过 <code>USER_MVIEW_DETAIL_SUBPARTITION</code> 查询视图的PCT信息<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> MVIEW_NAME,DETAILOBJ_NAME,DETAIL_PARTITION_NAME, DETAIL_SUBPARTITION_NAME,</span><br><span class="line">    DETAIL_SUBPARTITION_POSITION,FRESHNESS</span><br><span class="line"><span class="keyword">FROM</span> USER_MVIEW_DETAIL_SUBPARTITION</span><br><span class="line"><span class="keyword">WHERE</span> MVIEW_NAME = MV1;</span><br><span class="line"></span><br><span class="line">MVIEW_NAME DETAILOBJ DETAIL_PARTITION DETAIL_SUBPARTITION_NAME DETAIL_SUBPARTITION_POS FRESHNESS</span><br><span class="line"><span class="comment">---------- --------- ---------------- ------------------------ ----------------------- ---------</span></span><br><span class="line">       MV1        T1               P1                      SP1                       1     FRESH</span><br><span class="line">       MV1        T1               P1                      SP2                       1     FRESH</span><br><span class="line">       MV1        T1               P1                      SP3                       1     FRESH</span><br><span class="line">       MV1        T1               P2                      SP1                       1     FRESH</span><br><span class="line">       MV1        T1               P2                      SP2                       1     FRESH</span><br><span class="line">       MV1        T1               P2                      SP3                       1     FRESH</span><br><span class="line">       MV1        T1               P3                      SP1                       1     STALE</span><br><span class="line">       MV1        T1               P3                      SP2                       1     STALE</span><br><span class="line">       MV1        T1               P3                      SP3                       1     STALE</span><br><span class="line">       MV1        T1               P4                      SP1                       1     FRESH</span><br><span class="line">       MV1        T1               P4                      SP2                       1     FRESH</span><br><span class="line">       MV1        T1               P4                      SP3                       1     FRESH</span><br></pre></td></tr></table></figure><br><br></font>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/06/22/Refreshing Materialized View/" data-id="cjipv1bkr0002y8qfsk7os4co" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Oracle/">Oracle</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/21/filename/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Spark SQL读取hive数据时报找不到mysql驱动</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Oracle/">Oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spark-hive-mysql/">spark,hive,mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/spark-hive-mysql/" style="font-size: 10px;">spark,hive,mysql</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/06/22/Refreshing Materialized View/">Refreshing Materialized View</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/filename/">Spark SQL读取hive数据时报找不到mysql驱动</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/GithubPages-Hexo/">GithubPages-Hexo</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/My-New-Post/">My New Post</a>
+          </li>
+        
+          <li>
+            <a href="/2018/06/21/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
