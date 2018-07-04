@@ -277,6 +277,171 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/04/HDFSArchitecture/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/04/HDFSArchitecture/" itemprop="url">
+                  HDFS Architecture(HDFS 架构)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-07-04 18:38:42" itemprop="dateCreated datePublished" datetime="2018-07-04T18:38:42+08:00">2018-07-04</time>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="http://paxbdafi7.bkt.clouddn.com/HDFSArchitecture.png" alt="HDFS Architecture"></p>
+<ul>
+<li>HDFS有一个主/从架构，一个HDFS集群由一个单一的NameNode，它是管理文件系统命名空间的主服务器，并管理客户对文件的访问。NameNode执行文件系统命名空间操作，如打开，关闭和重命名文件和目录。它还确定块到DataNode的映射关系。</li>
+<li>此外，还有许多的DataNode(通常每个节点一个)，它们管理所在的节点的数据存储。DataNodes负责处理来自Clients的读写请求。同时再NameNode的指令下执行Block的创建，删除，复制。</li>
+<li><p>HDFS 公开一个命名空间，允许用户数据存储再文件中。再内部文件被分割成一个或者多个数据块，这些数据块存储再DataNode集群中。</p>
+</li>
+<li><p>典型的HDFS集群，会有一个专用的机器来运行NameNode，其他机器都运行一个DataNode实例。</p>
+</li>
+</ul>
+<p>Note: 集群中单个NameNode的存在极大地简化了系统的架构，NameNode是所有HDFS元数据的仲裁器和存储库。用户的数据是永远不会通过NameNode。</p>
+<h3 id="文件系统命名空间"><a href="#文件系统命名空间" class="headerlink" title="文件系统命名空间"></a>文件系统命名空间</h3><ul>
+<li>HDFS的文件系统类似于传统的分层结构，用户同样可以创建目录并且在目录下创建文件、删除文件，移动文件或者重命名文件. HDFS2.6.5目前还不支持对用户进行分配额度或者访问权限，以及文件间的软硬链接。未来可能会有这种功能。</li>
+<li>NameNode维护文件系统命名空间，对其的任何更改都会进行记录。</li>
+<li>可以指定一个文件的副本数量。一般为3份。 文件的拷贝数称为文件的复制因子。可以由参数指定。</li>
+</ul>
+<h1 id="数据复制-Data-Replication"><a href="#数据复制-Data-Replication" class="headerlink" title="数据复制(Data Replication)"></a>数据复制(Data Replication)</h1><p>HDFS在集群中存储大文件，将每个文件存储为快序列。一个文件的所有的块除了最后一个block 其他的block 都是一样的大小。<br>每个文件的复制因子(备份) 的数量是可以指定的。</p>
+<p><img src="http://paxbdafi7.bkt.clouddn.com/HDFSDataReplication.png" alt="Data Replication"></p>
+<h2 id="副本放置策略"><a href="#副本放置策略" class="headerlink" title="副本放置策略"></a>副本放置策略</h2><p>HDFS的数据复制对提高其可靠性和性能至关重要。</p>
+<h3 id="机架感知策略"><a href="#机架感知策略" class="headerlink" title="机架感知策略"></a>机架感知策略</h3><ul>
+<li>比如副本数量指定为3时。 HDFS的放置策略是将一个副本放在本地机架的一个node上，另一个副本放在本地机架的另一个node上。最后一个副本放在另一个机架的另一个节点上。</li>
+<li>这种策略减少了机架间的写流量，提高写性能。机架间的故障概率远小于节点故障的概率。这个策略，文件的副本就不会均匀分布再各个机架上。三分之一的副本再一个节点上，三分之二的副本再一个架子上，另外三分之一均匀分布在剩下的架子上。</li>
+<li>这种策略改进了写性能，而不影响数据可靠性或读性能。</li>
+</ul>
+<h2 id="副本选择"><a href="#副本选择" class="headerlink" title="副本选择"></a>副本选择</h2><ul>
+<li>为了最小化带宽消耗和读取延迟，在一个读取请求过来的时候，如果在读取节点所在机架上存在一个请求的副本，那么这个副本更适合提供读取请求。</li>
+</ul>
+<h2 id="安全模式"><a href="#安全模式" class="headerlink" title="安全模式"></a>安全模式</h2><ul>
+<li>在集群启动的时候，NameNode会进入一种Safemode(安全模式)的特殊状态。这时候是不会发生数据库复制的。只有当NameNode接收到DataNodes的心跳和block report后。 Block报告包含DataNodes管理的所有的数据块的列表。NameNode会检查数据块的最小复制数、在检查数据快复制百分比之后。退出安全模式。</li>
+<li>这时候确定仍然少于指定的副本数量。NameNode 会将这些块按照对应的策略复制到其他的DataNode。</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/Spark-Env-Conf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -323,7 +488,7 @@
                 
               
 
-              <time title="Post created: 2018-06-26 16:36:41 / Updated at: 17:22:24" itemprop="dateCreated datePublished" datetime="2018-06-26T16:36:41+08:00">2018-06-26</time>
+              <time title="Post created: 2018-06-26 16:36:41 / Updated at: 17:26:59" itemprop="dateCreated datePublished" datetime="2018-06-26T16:36:41+08:00">2018-06-26</time>
             
 
             
@@ -498,12 +663,24 @@
                 
               
 
-              <time title="Post created: 2018-06-25 14:57:21 / Updated at: 15:00:57" itemprop="dateCreated datePublished" datetime="2018-06-25T14:57:21+08:00">2018-06-25</time>
+              <time title="Post created: 2018-06-25 14:57:21" itemprop="dateCreated datePublished" datetime="2018-06-25T14:57:21+08:00">2018-06-25</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2018-07-03 13:33:56" itemprop="dateModified" datetime="2018-07-03T13:33:56+08:00">2018-07-03</time>
               
             
           </span>
@@ -1359,7 +1536,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">Artikel</span>
                   </a>
                 </div>
@@ -1380,7 +1557,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">Tags</span>
                   
                 </div>
